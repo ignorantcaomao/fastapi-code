@@ -1,13 +1,24 @@
 from fastapi import FastAPI, Depends
-
+from loguru import logger
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import text
 from app.core.config import get_settings, get_project_version, settings, Settings
+from app.core.session import setup_database_connection, create_db_and_tables, close_database_connection, get_db
 
-
-
-
+# 使用 lifespan 管理应用生命周期事件
 async def lifespan(app: FastAPI):
+  # 应用启动时执行
   get_settings()
+  await setup_database_connection()
+  # [可选] 在开发时创建表
+  if settings.ENVIRONMENT == "dev":
+    print(settings.ENVIRONMENT)
+    await create_db_and_tables()
+  logger.info("🚀 应用启动，数据库已连接。")
   yield
+  # 应用关闭时执行
+  await close_database_connection()
+  logger.info("应用关闭，数据库连接已释放。")
 
 app = FastAPI(
   title=settings.APP_NAME,
@@ -40,3 +51,15 @@ def read_root(
         ),
         "app_version": get_project_version()
     }
+
+@app.get("/db-check")
+async def db_check(db: AsyncSession = Depends(get_db)):
+  """
+      一个简单的端点，用于检查数据库连接是否正常工作。
+      """
+  try:
+    result = await db.execute(text("select 1"))
+    if result.scalar_one() == 1:
+      return {"status": "ok", "message": "数据库连接成功！"}
+  except Exception as e:
+    return {"status": "error", "message": f"数据库连接失败: {e}"}

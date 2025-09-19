@@ -27,6 +27,7 @@ class DatabaseSettings(BaseSettings):
   PASSWORD: str = "postgres"
   DB: str = "app"
 
+
   # 使用 @computed_field，可以在模型内部根据其他字段动态生成新字段
   # 这比在模型外部手动拼接字符串要优雅得多。
   @computed_field

@@ -3,7 +3,7 @@ import os
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from typing import AsyncGenerator
 
-from app.models.models import Base
+from app.models.base import Base
 
 # 从环境变量获取数据库路径，默认为 data/memenote.sqlite3
 database_path = os.getenv("SQLITE_DB_PATH", "data/memenote.sqlite3")

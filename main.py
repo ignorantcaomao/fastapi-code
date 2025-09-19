@@ -3,6 +3,7 @@ from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 from app.core.config import get_settings, get_project_version, settings, Settings
+from app.core.exceptions import global_exception_handler
 from app.core.session import setup_database_connection, create_db_and_tables, close_database_connection, get_db
 
 # 使用 lifespan 管理应用生命周期事件
@@ -25,6 +26,10 @@ app = FastAPI(
   version=get_project_version(),
   lifespan=lifespan,
 )
+
+# 注册全局异常处理器
+# 这会捕获所有类型为 Exception 的异常
+app.add_exception_handler(Exception, global_exception_handler)
 
 
 @app.get("/health")

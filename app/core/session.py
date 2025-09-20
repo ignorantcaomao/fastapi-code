@@ -22,6 +22,7 @@ async def setup_database_connection():
     return
 
   logger.info("正在创建数据库引擎...")
+  logger.info(settings.DB)
   _engine = create_async_engine(
     # 从我们上一章的 settings 对象中读取计算生成的数据库连接字符串
     settings.DB.DATABASE_URL,
@@ -77,6 +78,7 @@ async def create_db_and_tables():
     await conn.run_sync(models.Base.metadata.create_all)
   logger.info("数据库表已成功同步/创建。")
 
-
-
-
+def get_session_factory() -> async_sessionmaker[AsyncSession]:
+  if _SessionFactory is None:
+    raise RuntimeError("会话工厂未初始化. 请先调用 setup_database_connection")
+  return _SessionFactory

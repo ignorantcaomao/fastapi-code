@@ -2,7 +2,7 @@ import os
 from functools import lru_cache
 from importlib import metadata
 from typing import Literal
-
+from loguru import logger
 from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -85,10 +85,13 @@ def get_settings() -> Settings:
   # 根据 ENVIRONMENT 环境变量来决定加载哪个 .env 文件
   # 这是一个非常灵活的模式
   env = os.getenv("ENVIRONMENT", "dev")
+  logger.info("env=%s", env)
   env_file = f".env.{env}"
+  # env_file = f".env.dev"
   # 动态创建 Settings 实例，并指定正确的 env_file
   settings = Settings(_env_file=env_file)
-  print(f"成功加载 '{env}' 环境配置 for {settings.APP_NAME}")
+  logger.info(f"settings={settings}")
+  # print(f"成功加载 '{env}' 环境配置 for {settings.APP_NAME}")
   return settings
 
 

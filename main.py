@@ -5,9 +5,7 @@ from sqlalchemy import text
 from app.core.config import get_settings, get_project_version, settings, Settings
 from app.core.exceptions import global_exception_handler
 from app.core.session import setup_database_connection, create_db_and_tables, close_database_connection, get_db
-from app.domains.heroes.heroes_dependencies import get_hero_service
-from app.domains.heroes.services import HeroService
-from app.schemas.heros import HeroResponse, HeroCreate
+from app.api.v1 import heros_route
 
 
 # 使用 lifespan 管理应用生命周期事件
@@ -34,6 +32,8 @@ app = FastAPI(
 # 注册全局异常处理器
 # 这会捕获所有类型为 Exception 的异常
 app.add_exception_handler(Exception, global_exception_handler)
+
+app.include_router(heros_route.router, prefix="/api/v1")
 
 
 @app.get("/health")
@@ -72,11 +72,3 @@ async def db_check(db: AsyncSession = Depends(get_db)):
       return {"status": "ok", "message": "数据库连接成功！"}
   except Exception as e:
     return {"status": "error", "message": f"数据库连接失败: {e}"}
-
-
-@app.post("/hero/", response_model=HeroResponse)
-async def create(
-    hero_data: HeroCreate,
-    service: HeroService = Depends(get_hero_service)
-):
-  return await service.create_hero(hero_data)

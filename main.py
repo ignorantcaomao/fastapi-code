@@ -72,3 +72,6 @@ async def db_check(db: AsyncSession = Depends(get_db)):
       return {"status": "ok", "message": "数据库连接成功！"}
   except Exception as e:
     return {"status": "error", "message": f"数据库连接失败: {e}"}
+
+
+
